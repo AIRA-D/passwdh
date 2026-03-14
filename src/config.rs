@@ -9,9 +9,9 @@ bitflags::bitflags! {
     /// Битовая маска типов символов.
     #[derive(Clone, Copy, Debug, PartialEq)]
     pub struct CharMask: u8 {
-        const LATIN = 1 << 0;
-        const CYRILLIC = 1 << 1;
-        const CAPITAL = 1 << 2;
+        const CAPITAL = 1 << 0;
+        const LATIN = 1 << 1;
+        const CYRILLIC = 1 << 2;  
         const DIGIT = 1 << 3;
         const SPECIAL = 1 << 4;
     }
@@ -37,7 +37,7 @@ impl Config {
         let mut resolved = mask;
         if resolved.contains(CharMask::CAPITAL) && 
            !(resolved.contains(CharMask::LATIN) || resolved.contains(CharMask::CYRILLIC)) {
-            resolved.insert(CharMask::LATIN);
+            resolved.insert(CharMask::CAPITAL);
         }
         resolved
     }
@@ -47,13 +47,17 @@ impl Config {
         let mut alphabet = Vec::new();
         if self.resolved_mask.contains(CharMask::LATIN) {
             alphabet.extend('a'..='z');
-            if self.resolved_mask.contains(CharMask::CAPITAL) { alphabet.extend('A'..='Z'); }
+            // if self.resolved_mask.contains(CharMask::CAPITAL) { alphabet.extend('A'..='Z'); }
         }
         if self.resolved_mask.contains(CharMask::CYRILLIC) {
             alphabet.extend("абвгдеёжзийклмнопрстуфхцчшщъыьэюя".chars());
             if self.resolved_mask.contains(CharMask::CAPITAL) {
                 alphabet.extend("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".chars());
             }
+        }
+        if self.resolved_mask.contains(CharMask::CAPITAL) {
+            alphabet.extend('A'..='Z');
+            alphabet.extend("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ".chars());
         }
         if self.resolved_mask.contains(CharMask::DIGIT) {
             alphabet.extend('0'..='9');
